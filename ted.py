@@ -15,9 +15,18 @@ linktype_Random = IntVar()
 gennedlink = StringVar()
 def openrng():##button funct
     global gennedlink
+    global settings
     print('link = ',gennedlink.get())
-    webbrowser.open(gennedlink.get())
-
+    #0 = prompt
+    print(settings[0])
+    if int(settings[0]) == 1:##functionise instead?
+        print('no prompt')
+        webbrowser.open(gennedlink.get())
+        
+    else:
+        if messagebox.askokcancel(title = 'confirm open',message = 'are you sure\nthere is NO guaruntee the link will be safe!'):
+            webbrowser.open(gennedlink.get())
+        
     
 def googlehome():##button funct
     webbrowser.open('google.co.uk')
@@ -114,6 +123,7 @@ def loadsettings():
         
 
 def genlink():##button funct
+    global settings
     if linktype_Random.get() == 1:
         linktype_Radio.set(random.randint(1,3))##randomises the link(change values to allow for all radios(UPDATE)
         ##genlink()
@@ -131,8 +141,11 @@ def genlink():##button funct
             gennedlink.set(get_BitLy())
         elif linktype_Radio.get() ==  3:
             gennedlink.set(get_googl())
-        history.append(gennedlink.get())
-        save_history()
+        if int(settings[1]) == 1:##skips saving link to array and disk
+            print('skipped saving history')
+        else:
+            history.append(gennedlink.get())
+            save_history()
         linkbox_Label.config(text = str(gennedlink.get()))
         refresh_Hbox()
 
@@ -217,8 +230,8 @@ def asciidump_ext():
 
 ###subwindow classes#
 class Menu_settings_window:
-    Warn_Skiplink = IntVar()
-    History_Track = IntVar()
+    Warn_Skiplink = IntVar()##settings[0]
+    History_Track = IntVar()##settings[1]
     SETTINGS_filename = 'SETTINGS.CFF'
     
     def __init__(self):
@@ -230,9 +243,10 @@ class Menu_settings_window:
         OBL = LabelFrame(optionsmenu,text = 'buttons')##options_buttons_labelframe
         
         SKIPWARN_check = Checkbutton(OCL,text = 'skip openbox on link open',variable = self.Warn_Skiplink,onvalue = 1,offvalue =0)
-        KEEPHISTORY_checks = Checkbutton(OCL,text = 'keep history',variable = self.History_Track,onvalue = 1,offvalue =0)
+        KEEPHISTORY_checks = Checkbutton(OCL,text = "DON'T keep history",variable = self.History_Track,onvalue = 1,offvalue =0)
 
         SAVESETTINGS_button = Button(OBL,text = 'Save settings',command = self.Menu_settings_savesettings)##'may be able to put into eventloop a check for the changes
+        WIPESETTINGS_button = Button(OBL,text = 'clear settings',command = self.Menu_settings_wipesettings)
 
         OCL.pack()
         OBL.pack()
@@ -241,6 +255,7 @@ class Menu_settings_window:
         KEEPHISTORY_checks.pack()
 
         SAVESETTINGS_button.pack()
+        WIPESETTINGS_button.pack()
         
         #root.config()
         optionsmenu.title('options')
@@ -278,6 +293,17 @@ class Menu_settings_window:
         print(returner)
         return returner
     
+    def Menu_settings_wipesettings(self):
+    #def save_file(name,data,overwrite = False,array = False):#saving funct
+        data = self.array2csv(([0]*len(settings)))
+
+        f = open(self.SETTINGS_filename,'w')
+        f.write(data)
+        #for x in data:
+            #f.write(x+'\n')
+        f.close()
+        self.Menu_settings_loadsettings()#reload settings to memory
+        
     def array2csv(self,array):##from beelib
         temp = ''
         for fl in array:
