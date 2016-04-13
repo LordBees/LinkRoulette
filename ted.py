@@ -141,6 +141,8 @@ def genlink():##button funct
             gennedlink.set(get_BitLy())
         elif linktype_Radio.get() ==  3:
             gennedlink.set(get_googl())
+        elif linktype_Radio.get() ==  4:
+            gennedlink.set(get_imgur())
         if int(settings[1]) == 1:##skips saving link to array and disk
             print('skipped saving history')
         else:
@@ -177,11 +179,19 @@ def get_BitLy():
 
 def get_googl():
     link = ''
-    leng = random.randint(4,6)#4-6 chars
+    leng = 7##7 imgur has fixed 7charsrandom.randint(4,6)#4-6 chars
     for x in range(0,leng):
         link+=vchars[random.randint(0,len(vchars))]
     return 'http://goo.gl/'+link
-    
+
+##image sites
+def get_imgur():
+    link = ''
+    leng = random.randint(4,7)#4-6 chars
+    for x in range(0,leng):##can be longer as https://bit.ly/zzzzzzzzzzzzzzzzz is valid
+        link+=vchars[random.randint(0,len(vchars))]
+    return 'http://i.imgur.com/'+link##+'.jpg'##check format may need detecting from file
+
 def on_run():##bootup setup
     load_history()
     refresh_Hbox()
@@ -341,6 +351,7 @@ historyscroller_Scrollbar.config(command = history_Listbox.yview)
 tinyurl_radio = Radiobutton(lr_LF,text = 'tinyurl',variable = linktype_Radio,value = 1)
 bitly_radio = Radiobutton(lr_LF,text = 'Bit.ly',variable = linktype_Radio,value = 2)
 googl_radio = Radiobutton(lr_LF,text = 'goo.gl',variable = linktype_Radio,value = 3)
+imgur_radio = Radiobutton(lr_LF,text = 'imgur',variable = linktype_Radio,value = 4)
 random_chkbox = Checkbutton(lr_LF,text = 'Random!',variable = linktype_Random,onvalue = 1,offvalue =0)
 genlnk_Button = Button(ol_LF,command = genlink,text = 'generate\nlink')
 openlnk_Button = Button(ol_LF,command = openrng,text = 'open link')
@@ -357,6 +368,7 @@ hb_LF.pack()
 tinyurl_radio.pack()
 bitly_radio.pack()
 googl_radio.pack()
+imgur_radio.pack()
 random_chkbox.pack()
 genlnk_Button.pack()
 openlnk_Button.pack()
