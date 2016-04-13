@@ -1,0 +1,32 @@
+LinkRoulette is a game where you can generate links from url shortners to view via a webbrowser, it's more akin to ruollete as you may not get what you expected!
+as links could link anywhere please take caution as although the majority of the randomly generated links are benign or dead, however there may be some 
+potentially Malicious or deceptive sites(eg phishing or fake sites with malicious software hosted) which have had their URL'S 
+shortened using these url shortening services so USE AT YOUR OWN RISK as you are liable for any damage caused to your own computer from using this program,
+either from running the code which is provided as-is,or from the content of the webpages opened/loaded/acessed by using/connecting to the randomly generated links which are opened in your browser
+as the owners of the websites are responsible for what happens to your computer when you connect and any software you may download or is saved by the sites.
+
+by using this software or connecting to these sites YOU are responsible for any effect it has on the computer it is running on!
+also due to the nature of shortened links they are liable to change where they point to, so the same shortened link may after a given time or under certain circumstances may resolve to a different URL than last time it was acessed
+
+So USE AT YOUR OWN RISK and have fun :D
+
+MANUAL:
+the TED script is the minimum you need to download for it to work the other files included are samples which can be downloaded
+if some sample links and settings are needed to get it working
+
+the main window:
+  1.) link generation:
+      to generate a link click a link type and press the 'generate link' button this wil store a randomly generated link to be opened
+      a label will show you the contents of the link to be opened,to open the link click the open link button and accept the warning if you wish to attempt top open the link
+  2.)history and management
+
+the settings window:
+  1.)this is where the settings can be changed or wiped
+    it is advised for you to ensure your settings are saved by pressing the save settings button if you want to ensure youer settings save properly ATM
+  
+  2.)SETTINGS LIST:
+    all of these settings will default to off on an initial setup unless manually changed
+    a.)skip openbox on link open
+        this skips the warning when opening the link
+    b.)DON'T keep history
+        this when checked will ignore saving each link to the history file and will skip adding to history or saving to disk
