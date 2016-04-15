@@ -325,7 +325,8 @@ class Menu_settings_window:
             #f.write(x+'\n')
         f.close()
         self.Menu_settings_loadsettings()#reload settings to memory
-        
+
+    ###these really shouldnt be here..
     def array2csv(self,array):##from beelib
         temp = ''
         for fl in array:
@@ -351,11 +352,30 @@ class Menu_settings_window:
         return arrayreturn
     ###
 
+    
+class Menu_preview_window:
+    PREVIEW_linkname = StringVar()
+    def __init__(self):
+        previewmenu = Toplevel()
+        PVF = LabelFrame(previewmenu,text = 'toggle options')##Preview Label Frame
 
+        t = Checkbutton(PVF,text = 'skip openbox on link open',onvalue = 1,offvalue =0)
+
+        
+        PVF.pack()
+
+        t.pack()
+        #root.config()
+        previewmenu.title('preview')
+        previewmenu.mainloop()
+        
+        
+##END SUBWINDOW CLASSES##
 
 ol_LF = LabelFrame(root,text = 'open link')##openlink 
 lr_LF = LabelFrame(root,text = 'pick a link type')##linkradio
 hb_LF = LabelFrame(root,text = 'link history')##historybox
+ms_LF = LabelFrame(root,text = 'misc functions')##misc
 historyscroller_Scrollbar = Scrollbar(hb_LF)
 history_Listbox = Listbox(hb_LF,yscrollcommand = historyscroller_Scrollbar.set)
 historyscroller_Scrollbar.config(command = history_Listbox.yview)
@@ -367,15 +387,16 @@ imgur_radio = Radiobutton(lr_LF,text = 'imgur',variable = linktype_Radio,value =
 random_chkbox = Checkbutton(lr_LF,text = 'Random!',variable = linktype_Random,onvalue = 1,offvalue =0)
 genlnk_Button = Button(ol_LF,command = genlink,text = 'generate\nlink')
 openlnk_Button = Button(ol_LF,command = openrng,text = 'open link')
-opengoogle_Button = Button(root,command = googlehome,text = 'google homepage')
+opengoogle_Button = Button(ms_LF,command = googlehome,text = 'google homepage')
 selectlink_Button = Button(hb_LF,command = setlink,text = 'select link')
-clearhistory_Button  = Button(root,command = clearhistory,text = 'clear history')
+clearhistory_Button  = Button(ms_LF,command = clearhistory,text = 'clear history')
 linkbox_Label = Label(root)
 
-
-lr_LF.pack()
-ol_LF.pack()
-hb_LF.pack()
+buff = [5,5]##pixel edge buffer/offset
+lr_LF.place(x = buff[0]+ 0,y = buff[1]+ 0)#.pack()              ###PACK CHANGED TO PLACE UNCONFIGGED!!!
+ol_LF.place(x = buff[0]+ 0,y = buff[1]+ 0)#.pack()
+hb_LF.place(x = buff[0]+ 0,y = buff[1]+ 0)#.pack()
+ms_LF.place(x = buff[0]+ 0,y = buff[1]+ 0)#.pack()
 
 tinyurl_radio.pack()
 bitly_radio.pack()
@@ -401,7 +422,9 @@ def event_TED():##custom event loop
 
 Menu_settings = Menu(root)
 #Menu_settings = Menu(menubar, tearoff=0)
-Menu_settings.add_command(label="options", command=Menu_settings_window)    
+Menu_settings.add_command(label="options", command=Menu_settings_window)
+Menu_settings.add_command(label="preview", command=Menu_preview_window)
+
 on_run()
 root.config(menu=Menu_settings,)#title = 'Link Roulette'
 root.title('Link Roulette')
