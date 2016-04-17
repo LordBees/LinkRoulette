@@ -580,7 +580,7 @@ class Menu_customchoose_window:
         self.loadcustomlink_settings()
         self.customlinkmenu = Toplevel()
         CLF = LabelFrame(self.customlinkmenu,text = 'custom link')##Custom Label Frame
-        self.LLF = LabelFrame(self.customlinkmenu,text = 'cutom link creation')##Link Label Frame
+        self.LLF = LabelFrame(self.customlinkmenu,text = 'custom link creation')##Link Label Frame
 
         EnableCL_button = Checkbutton(CLF,text = 'enable custom link',variable = self.Custom_enable,onvalue = 1,offvalue =0)##EnableCustomLink_button
         savesettings_button = Button(CLF,text = 'save settings',command = self.savecustomlink_settings)
@@ -593,6 +593,7 @@ class Menu_customchoose_window:
         upperlimiting_entry_label = Label(self.LLF,text = 'upper range rng')
         charset_entry = Entry(self.LLF,textvariable = self.Custom_charset)
         charset_entry_label = Label(self.LLF,text = 'rng charset(CSV)')##print(array2csv(vchars))
+        charset_default_button = Button(self.LLF,text = 'default charset',command = self.Custom_resetcharset)
         #savesettings_button = Button(self.LLF,text = 'save settings',command = savecustomlink_settings)
 
 
@@ -613,6 +614,7 @@ class Menu_customchoose_window:
         upperlimiting_entry.pack()
         charset_entry_label.pack()
         charset_entry.pack()
+        charset_default_button.pack()
 
         
         #root.config()
@@ -733,7 +735,10 @@ class Menu_customchoose_window:
         self.Custom_linkstart.set(data[2])
         self.Custom_charset.set(data[3])
         self.Custom_enable.set(data[4])
-        
+    def Custom_resetcharset(self):
+        if messagebox.askokcancel(title = 'confirm reset',message = 'are you sure\nthis will reset the the charset box to the default value!'):
+            self.Custom_charset.set('0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,,')
+            print('RESET!')
     ###these really shouldnt be here..
     def array2csv(self,array):##from beelib
         temp = ''
