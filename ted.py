@@ -83,7 +83,24 @@ def load_history_ext():##unused
     global history
     if askokcancel():
         history = loadfile(FILE_HISTORY)
+##temp here till beelib sorted out should'nt be here
+def csv2dot(strng):##replaces , with . char for  sub 'csvising them'
+    temp = ''
+    for x in range(len(strng)):
+        if strng[x] == ',':
+            temp += '.'
+        else:
+            temp += strng[x]
+    return temp
 
+def dot2csv(strng):##replaces . with , char for  sub 'uncsvising them'
+    temp = ''
+    for x in range(len(strng)):
+        if strng[x] == '.':
+            temp += ','
+        else:
+            temp += strng[x]
+    return temp
 def load_history():
     global history
     if FILE_HISTORY in os.listdir():
@@ -149,6 +166,8 @@ def genlink():##button funct
             gennedlink.set(get_googl())
         elif linktype_Radio.get() ==  4:
             gennedlink.set(get_imgur())
+        elif linktype_Radio.get() ==  5:
+            gennedlink.set(get_custom())
         if int(settings[1]) == 1:##skips saving link to array and disk
             print('skipped saving history')
         else:
@@ -198,6 +217,26 @@ def get_imgur():
         link+=vchars[random.randint(0,len(vchars))]
     return 'http://i.imgur.com/'+link##+'.jpg'##check format may need detecting from file
 
+##custom
+def get_custom():##youtube thing bndPy1MHm8E
+    f = open('CUSTOM.CLF','r')
+    dat = f.readline()
+    f.close()
+    data = csv2array(dat)##to solve type prob
+    print('//##//\n',data,'\n\\##\\')
+    #data = csv2array(dat)
+    print(data[3])
+    print(dot2csv(data[3]))
+    data[3] = csv2array(dot2csv(data[3]))
+    print('\n\n//##//\n',data,'\n\\##\\')
+    enabled = data[4]
+    if enabled  == 1 or '1':
+        link = ''
+        leng = random.randint(int(data[2]),int(data[1]))#chars
+        for x in range(0,leng):##can be longer as https://bit.ly/zzzzzzzzzzzzzzzzz is valid
+            link+=data[3][random.randint(0,len(vchars))]
+        return data[0]+link##+'.jpg'##check format may need detecting from file
+    
 def on_run():##bootup setup
     load_history()
     refresh_Hbox()
@@ -288,6 +327,24 @@ class file_prog:
     def get_dataline(self,lineno):
         '''first line is zero '''
         return self.data[lineno]
+    ##temp here till beelib sorted out should'nt be here
+    def csv2dot(self,strng):##replaces , with . char for  sub 'csvising them'
+        temp = ''
+        for x in range(len(strng)):
+            if strng[x] == ',':
+                temp += '.'
+            else:
+                temp += strng[x]
+        return temp
+
+    def dot2csv(self,strng):##replaces . with , char for  sub 'uncsvising them'
+        temp = ''
+        for x in range(len(strng)):
+            if strng[x] == '.':
+                temp += ','
+            else:
+                temp += strng[x]
+        return temp
     
 class configfile_prog (file_prog):
     def __init__(self):
@@ -301,6 +358,13 @@ class customfile_prog (file_prog):
         self.data = dat##csv done in filewriting itself
         print(self.data)
         self.writefile('CUSTOM.CLF')
+    def save_customdata2(self,dat):##improvement of the first iteration assumes raw input
+        #self.data = array2csv(dat)
+        self.data = dat##csv done in filewriting itself(will move at some point)
+        self.data[3] = csv2dot(self.data[3])#dotting subcsv
+        print(self.data)
+        self.writefile('CUSTOM.CLF')
+    
         
 ##class file_reader(file_prog):
 ##    def readfile(self,fname):
@@ -568,8 +632,10 @@ class Menu_customchoose_window:
 
     def savecustomlink_settings(self):
         dat2sav = self.getsettings()
+        print('~~~~####~~~~~#####')
         print(dat2sav)##check array handlingstuff
         print(self.csv2dot('0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,,'))
+        print('~~~~####~~~~~#####')
         dat2sav[3] = self.csv2dot(dat2sav[3])
         self.cls.save_customdata(dat2sav)##data is csvised internally in fileclass so no csving needed here
         
@@ -643,6 +709,7 @@ tinyurl_radio = Radiobutton(lr_LF,text = 'tinyurl',variable = linktype_Radio,val
 bitly_radio = Radiobutton(lr_LF,text = 'Bit.ly',variable = linktype_Radio,value = 2)
 googl_radio = Radiobutton(lr_LF,text = 'goo.gl',variable = linktype_Radio,value = 3)
 imgur_radio = Radiobutton(lr_LF,text = 'imgur',variable = linktype_Radio,value = 4)
+custom_radio = Radiobutton(lr_LF,text = 'custom',variable = linktype_Radio,value = 5)
 random_chkbox = Checkbutton(lr_LF,text = 'Random!',variable = linktype_Random,onvalue = 1,offvalue =0)
 genlnk_Button = Button(ol_LF,command = genlink,text = 'generate\nlink')
 openlnk_Button = Button(ol_LF,command = openrng,text = 'open\nlink')
@@ -653,14 +720,15 @@ linkbox_Label = Label(root)
 
 buff = [5,5]##pixel edge buffer/offset
 lr_LF.place(x = buff[0]+ 0,y = buff[1]+ 0)#.pack()              ###PACK CHANGED TO PLACE UNCONFIGGED!!!
-ol_LF.place(x = buff[0]+ 75,y = buff[1]+ 225)#.pack()
+ol_LF.place(x = buff[0]+ 75,y = buff[1]+ 250)#.pack()
 hb_LF.place(x = buff[0]+ 150,y = buff[1]+ 0)#.pack()
-ms_LF.place(x = buff[0]+ 0,y = buff[1]+ 150)#.pack()
+ms_LF.place(x = buff[0]+ 0,y = buff[1]+ 175)#.pack()
 
 tinyurl_radio.pack()
 bitly_radio.pack()
 googl_radio.pack()
 imgur_radio.pack()
+custom_radio.pack()
 random_chkbox.pack()
 genlnk_Button.pack(side = LEFT)
 openlnk_Button.pack(side = LEFT)
