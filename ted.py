@@ -6,7 +6,7 @@ from tkinter import messagebox
 FILE_HISTORY = 'history.dat'
 vchars = [ '0', '1', '2', '3', '4', '5', '6', '7', '8', '9','A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L','M','N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z','a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z']
 history = []
-#settings in order Warn_Skiplink , History_Track , Session_History
+#settings in order Warn_Skiplink , History_Track , Session_History , custom button enabled?
 settings = []
 ##settings do double check when adding new settings that every setting is added in all the procs properly
 #Menu_settings_window_DATA = []##global datastore for settings window maynot need as objectified
@@ -136,7 +136,7 @@ def clearhistory():##temp clears urlbox
     else:
         print('no')
     
-def loadsettings():
+def loadsettings():##the custom button is only checked on load time currently whether it should be added to the random pool and nowhere else
     global settings
     global custom_radio
     print('loading settings...')
@@ -151,18 +151,34 @@ def loadsettings():
         f = open('CUSTOM.CLF','r')
         dat = f.readline()
         f.close()
+        #print(dat)
         data = csv2array(dat)##to solve type prob
+        print(data)
         print('enabled custom: '+data[4])
-        if data[4] == 1 or '1':
+        if str(data[4]) == '1':
             custom_radio.configure(state = 'normal')
+            print('dat[4] = normal')
+        else:
+            custom_radio.configure(state = 'disabled')
+        
+        print(settings)
+        settings.append(str(data[4]))
+        print(settings)
             
         
 
 def genlink():##button funct
     global settings
+    button_num = 4
+    #global custom_radio
     if linktype_Random.get() == 1:
-        linktype_Radio.set(random.randint(1,4))##randomises the link(change values to allow for all radios(UPDATE)
-        ##genlink()
+        #if custom_radio ==
+        print('settings[3] == '+str(settings[3]))
+        if settings[3] == '1':
+            linktype_Radio.set(random.randint(1,(button_num+1)))
+        else:
+            linktype_Radio.set(random.randint(1,button_num))##randomises the link(change values to allow for all radios(UPDATE)
+            ##genlink()
         
     if linktype_Radio.get() == 0:
         pass
@@ -181,6 +197,7 @@ def genlink():##button funct
             gennedlink.set(get_imgur())
         elif linktype_Radio.get() ==  5:
             gennedlink.set(get_custom())
+            
         if int(settings[1]) == 1:##skips saving link to array and disk
             print('skipped saving history')
         else:
@@ -359,11 +376,11 @@ class file_prog:
                 temp += strng[x]
         return temp
     
-class configfile_prog (file_prog):
+class configfile_prog (file_prog):##file obj for config file
     def __init__(self):
         self.readup('SETTINGS.CFF')##settings.configfilecustomlinkfile
 
-class customfile_prog (file_prog):
+class customfile_prog (file_prog):##file obj for custom link file
     def __init__(self):
         self.readup('CUSTOM.CLF')##custom.customlinkfile
     def save_customdata(self,dat):
@@ -645,6 +662,7 @@ class Menu_customchoose_window:
 
     def savecustomlink_settings(self):
         global custom_radio
+        global settings
         dat2sav = self.getsettings()
         print('~~~~####~~~~####~~~~')
         print(dat2sav)##check array handlingstuff
@@ -652,10 +670,19 @@ class Menu_customchoose_window:
         print('~~~~####~~~~####~~~~')
         dat2sav[3] = self.csv2dot(dat2sav[3])
         self.cls.save_customdata(dat2sav)##data is csvised internally in fileclass so no csving needed here
+        print('custom state = '+str(dat2sav[4]))
         if str(dat2sav[4]) == '1':
             custom_radio.configure(state = 'normal')
+            csttg = '1'##customtoggle
         else:
+            print('cstmst = disabled')
             custom_radio.configure(state = 'disabled')
+            csttg = '0'
+            
+        try:
+            settings[3] = csttg## if fail then append may be good idea to use 'variable type data in arrays E.G. ['Button_on = 1',"Test = '1'"] etc may help with id problems
+        except:
+            settings.append(csttg)
         
     def getsettings(self):
         returner = [
@@ -728,7 +755,7 @@ tinyurl_radio = Radiobutton(lr_LF,text = 'tinyurl',variable = linktype_Radio,val
 bitly_radio = Radiobutton(lr_LF,text = 'Bit.ly',variable = linktype_Radio,value = 2)
 googl_radio = Radiobutton(lr_LF,text = 'goo.gl',variable = linktype_Radio,value = 3)
 imgur_radio = Radiobutton(lr_LF,text = 'imgur',variable = linktype_Radio,value = 4)
-custom_radio = Radiobutton(lr_LF,text = 'custom',variable = linktype_Radio,value = 5,state='disable')
+custom_radio = Radiobutton(lr_LF,text = 'custom',variable = linktype_Radio,value = 5,state= 'disabled')
 random_chkbox = Checkbutton(lr_LF,text = 'Random!',variable = linktype_Random,onvalue = 1,offvalue =0)
 genlnk_Button = Button(ol_LF,command = genlink,text = 'generate\nlink')
 openlnk_Button = Button(ol_LF,command = openrng,text = 'open\nlink')
