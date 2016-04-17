@@ -244,6 +244,71 @@ def asciidump_ext():
 ##def Menu_settings_savesettings():
 ##    #global Menu_settings_window_DATA
 
+
+## file objects##
+class file_prog:
+    filelist = os.listdir()##dont really need mainly for debug (line)
+    data = []##line = one entry
+    name =''
+    linelen = 0
+    def __init__(self):
+        pass
+        #self.linelen = len(self.data)
+        #self.name = fname
+        #self.executor()
+        
+    def readfile(self,fname):##internal method for filereading
+        f = open(fname,'r')
+        self.data = f.readlines()
+        f.close()
+        self.name = fname
+        
+    def writefile(self,fname):##internal method for filewriting
+        f = open(fname,'w')
+        f.write(array2csv(self.data))
+        #self.data = f.readlines()
+        f.close()
+        #self.name = fname
+    def update_fobj(self):##internal update class
+        self.linelen = len(self.data)
+        
+    def readup(self,filename):
+        self.readfile(filename)
+        self.update_fobj()
+        
+    def get_name(self):
+        return self.name
+    
+    def get_linelen(self):
+        return self.linelen
+    
+    def get_data(self):
+        return self.data
+    
+    def get_dataline(self,lineno):
+        '''first line is zero '''
+        return self.data[lineno]
+    
+class configfile_prog (file_prog):
+    def __init__(self):
+        self.readup('SETTINGS.CFF')##settings.configfilecustomlinkfile
+
+class customfile_prog (file_prog):
+    def __init__(self):
+        self.readup('CUSTOM.CLF')##custom.customlinkfile
+        
+##class file_reader(file_prog):
+##    def readfile(self,fname):
+##        if fname == '-1':
+##            pass
+##        else:
+##            f = open(fname,'r')
+##            self.data = f.readlines()
+##            f.close()
+##    
+##class conf_file(file_prog):
+##    #def executor(self):
+        
 ###subwindow classes#
 class Menu_settings_window:
     Warn_Skiplink = IntVar()##settings[0]
@@ -359,7 +424,7 @@ class Menu_preview_window:
         previewmenu = Toplevel()
         PVF = LabelFrame(previewmenu,text = 'toggle options')##Preview Label Frame
 
-        t = Checkbutton(PVF,text = 'skip openbox on link open',onvalue = 1,offvalue =0)
+        t = Checkbutton(PVF,text = 'placeholder',onvalue = 1,offvalue =0)
 
         
         PVF.pack()
@@ -369,7 +434,179 @@ class Menu_preview_window:
         previewmenu.title('preview')
         previewmenu.mainloop()
         
+class Menu_customchoose_window:
+    Custom_linkprefix = StringVar()
+    Custom_linklen = IntVar()##length of link
+    Custom_linkstart = IntVar()##inclusive position start of rng link so linklen = 6 linkstart = 4 so random.rng(4,6)
+    Custom_charset = StringVar()##csv input string for custom chars
+    Custom_enable = IntVar()
+    
+    cls = customfile_prog()##customlinkstorage ##data for the custom link
+
+    ##defs
+    Custom_charset.set('0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,,')
+    ##END
+    
+    #hacky globals
+    customlinkmenu = ''##menu hacky global tkstuff
+    LLF= '' #hacky global ##could assign locally on init within so self llf becomes llfsub/something
+    prefixcustom_entry=''
+    lowerlimitrng_entry = ''
+    upperlimitrng_entry = ''
+    charset_entry = ''
+    #END
+    
+    def __init__(self):
+        self.customlinkmenu = Toplevel()
+        CLF = LabelFrame(self.customlinkmenu,text = 'custom link')##Custom Label Frame
+        self.LLF = LabelFrame(self.customlinkmenu,text = 'cutom link creation')##Link Label Frame
+
+        EnableCL_button = Checkbutton(CLF,text = 'enable custom link',variable = self.Custom_enable,onvalue = 1,offvalue =0)##EnableCustomLink_button
+        savesettings_button = Button(CLF,text = 'save settings',command = self.savecustomlink_settings)
+
+        prefixcustom_entry = Entry(self.LLF)
+        prefixcustom_entry_label = Label(self.LLF,text = 'link prefix')
+        lowerlimitrng_entry = Entry(self.LLF)
+        lowerlimiting_entry_label = Label(self.LLF,text = 'lower range rng')
+        upperlimitrng_entry = Entry(self.LLF)
+        upperlimiting_entry_label = Label(self.LLF,text = 'upper range rng')
+        charset_entry = Entry(self.LLF)
+        charset_entry_label = Label(self.LLF,text = 'rng charset(CSV)')##print(array2csv(vchars))
+        #savesettings_button = Button(self.LLF,text = 'save settings',command = savecustomlink_settings)
+
         
+        CLF.pack()
+        self.LLF.pack()
+
+        EnableCL_button.pack()
+        savesettings_button.pack()
+        
+        prefixcustom_entry_label.pack()
+        prefixcustom_entry.pack()
+        lowerlimiting_entry_label.pack()
+        lowerlimitrng_entry.pack()
+        upperlimiting_entry_label.pack()
+        upperlimitrng_entry.pack()
+        charset_entry.pack()
+        charset_entry_label.pack()
+        
+        #root.config()
+        self.customlinkmenu.title('custom link creation')
+        self.customlinkmenu.after(1000, self.event_TED)
+
+        self.disable_custom()##disable at start
+        #self.checkstate_custom()
+        self.loadcustomlink_settings()
+        self.customlinkmenu.mainloop()
+        
+    def event_TED(self):##custom event loop
+        ##event code here##
+        #print('test')
+        ##hacky stuffWILLFIX LATER
+
+##        print(self.prefixcustom_entry.get(),
+##        self.lowerlimitrng_entry.get(),
+##        self.upperlimitrng_entry.get(),
+##        self.charset_entry.get())
+##        
+##        self.Custom_linkprefix.set(self.prefixcustom_entry.get())
+##        self.Custom_linklen.set(self.lowerlimitrng_entry.get())##length of link
+##        self.Custom_linkstart.set(self.upperlimitrng_entry.get())##inclusive position start of rng link so linklen = 6 linkstart = 4 so random.rng(4,6)
+##        self.Custom_charset.set(self.charset_entry.get())##csv input string for custom chars
+        
+        print(self.Custom_enable.get())
+        if self.Custom_enable.get() == 1:
+            self.enable_custom()
+        else:
+            self.disable_custom()
+        ##END EVENT CODE##
+        self.customlinkmenu.after(1000, self.event_TED)
+        
+    def enable_custom(self):
+        print('enabled!')
+        for child in self.LLF.winfo_children():
+            child.configure(state='normal')
+    def disable_custom(self):
+        print('disabled!')
+        for child in self.LLF.winfo_children():
+            child.configure(state='disable')
+            
+    def checkstate_custom(self):##checks in settings for if enabled
+        
+        dat = self.csv2array(cls.get_data())
+        prefix = dat[0]
+        rngrangelen = dat[1]
+
+    def csv2dot(strng):##replaces , with . char for  sub 'csvising them'
+        temp = ''
+        for x in range(len(strng)):
+            if strng[x] == ',':
+                temp += '.'
+            else:
+                temp += strng[x]
+        return temp
+
+    def dot2csv(strng):##replaces . with , char for  sub 'uncsvising them'
+        temp = ''
+        for x in range(len(strng)):
+            if strng[x] == '.':
+                temp += ','
+            else:
+                temp += strng[x]
+        return temp
+
+    def savecustomlink_settings(self):
+        dat2sav = self.getsettings()
+        print(dat2sav)##check array handlingstuff
+        dat2sav[3] = self.csv2dot(dat2sav[3])
+        self.cls.savedata(dat2sav)##data is csvised internally in fileclass so no csving needed here
+        
+    def getsettings(self):
+        returner = [
+        self.Custom_linkprefix.get(),
+        self.Custom_linklen.get(),
+        self.Custom_linkstart.get(),
+        self.Custom_charset.get(),
+        self.Custom_enable.get()
+        ]
+        return returner
+            
+    def loadcustomlink_settings(self):
+        data = self.csv2array(self.cls.get_data())
+        data[3] = self.dot2csv(data[3])
+        
+        self.Custom_linkprefix.set(data[0])
+        self.Custom_linklen.set(data[1])
+        self.Custom_linkstart.set(data[2])
+        self.Custom_charset.set(data[3])
+        self.Custom_enable.set(data[4])
+        
+    ###these really shouldnt be here..
+    def array2csv(self,array):##from beelib
+        temp = ''
+        for fl in array:
+            print(fl)
+            temp += str(fl)+','
+        temp+=','
+        return temp
+    
+    def csv2array(self,csvstr):##may need os.isfile() or whatever it is to check file is in dir before declaring eofsame for array2csv      ##from beelib
+        arrayreturn = []
+        temp = ''
+        flag = False
+        for x in csvstr:#range(len(csvnames)):
+            if flag and (x==','):## ,, delimiter
+                break
+            if x ==',':
+                arrayreturn.append(temp)
+                temp = ''
+                flag = True
+            else:
+                temp+=x
+                flag = False
+        return arrayreturn
+    ###
+    
 ##END SUBWINDOW CLASSES##
 
 ol_LF = LabelFrame(root,text = 'open link')##openlink 
@@ -386,7 +623,7 @@ googl_radio = Radiobutton(lr_LF,text = 'goo.gl',variable = linktype_Radio,value 
 imgur_radio = Radiobutton(lr_LF,text = 'imgur',variable = linktype_Radio,value = 4)
 random_chkbox = Checkbutton(lr_LF,text = 'Random!',variable = linktype_Random,onvalue = 1,offvalue =0)
 genlnk_Button = Button(ol_LF,command = genlink,text = 'generate\nlink')
-openlnk_Button = Button(ol_LF,command = openrng,text = 'open link')
+openlnk_Button = Button(ol_LF,command = openrng,text = 'open\nlink')
 opengoogle_Button = Button(ms_LF,command = googlehome,text = 'google homepage')
 selectlink_Button = Button(hb_LF,command = setlink,text = 'select link')
 clearhistory_Button  = Button(ms_LF,command = clearhistory,text = 'clear history')
@@ -394,17 +631,17 @@ linkbox_Label = Label(root)
 
 buff = [5,5]##pixel edge buffer/offset
 lr_LF.place(x = buff[0]+ 0,y = buff[1]+ 0)#.pack()              ###PACK CHANGED TO PLACE UNCONFIGGED!!!
-ol_LF.place(x = buff[0]+ 0,y = buff[1]+ 0)#.pack()
-hb_LF.place(x = buff[0]+ 0,y = buff[1]+ 0)#.pack()
-ms_LF.place(x = buff[0]+ 0,y = buff[1]+ 0)#.pack()
+ol_LF.place(x = buff[0]+ 75,y = buff[1]+ 225)#.pack()
+hb_LF.place(x = buff[0]+ 150,y = buff[1]+ 0)#.pack()
+ms_LF.place(x = buff[0]+ 0,y = buff[1]+ 150)#.pack()
 
 tinyurl_radio.pack()
 bitly_radio.pack()
 googl_radio.pack()
 imgur_radio.pack()
 random_chkbox.pack()
-genlnk_Button.pack()
-openlnk_Button.pack()
+genlnk_Button.pack(side = LEFT)
+openlnk_Button.pack(side = LEFT)
 opengoogle_Button.pack()
 selectlink_Button.pack()
 clearhistory_Button.pack()
@@ -420,15 +657,17 @@ def event_TED():##custom event loop
     root.after(2000, event_TED)
 
 
-Menu_settings = Menu(root)
+Menu_main = Menu(root)
+Menu_settings = Menu(Menu_main,tearoff = 0)
 #Menu_settings = Menu(menubar, tearoff=0)
 Menu_settings.add_command(label="options", command=Menu_settings_window)
-Menu_settings.add_command(label="preview", command=Menu_preview_window)
-
+Menu_settings.add_command(label="custom link", command=Menu_customchoose_window)
+Menu_main.add_cascade(label = 'options',menu = Menu_settings)
+Menu_main.add_command(label="preview", command=Menu_preview_window)
 on_run()
-root.config(menu=Menu_settings,)#title = 'Link Roulette'
+root.config(menu=Menu_main)#title = 'Link Roulette'
 root.title('Link Roulette')
-root.geometry('300x300')
+root.geometry('305x300')
 root.after(2000, event_TED)
 root.mainloop()
 on_close()
