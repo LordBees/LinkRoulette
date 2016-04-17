@@ -19,14 +19,31 @@ the main window:
       to generate a link click a link type and press the 'generate link' button this wil store a randomly generated link to be opened
       a label will show you the contents of the link to be opened,to open the link click the open link button and accept the warning if you wish to attempt top open the link
   2.)history and management
-
+      here you can view your history of previously generated links that have been logged, to load a link from the history you should click the link in the listbox and press select link.
+  3.)misc functions
+    these have buttons that have not been placed yet or do not fit in anywhere currently on the menu
+    
 the settings window:
   1.)this is where the settings can be changed or wiped
-    it is advised for you to ensure your settings are saved by pressing the save settings button if you want to ensure youer settings save properly ATM
+      it is advised for you to ensure your settings are saved by pressing the save settings button if you want to ensure your settings save properly ATM
   
   2.)SETTINGS LIST:
     all of these settings will default to off on an initial setup unless manually changed
     a.)skip openbox on link open
-        this skips the warning when opening the link
+        this skips the warning when opening the link.
     b.)DON'T keep history
-        this when checked will ignore saving each link to the history file and will skip adding to history or saving to disk
+        this when checked will ignore saving each link to the history file and will skip adding to history or saving to disk.
+    c.)DON'T save session to disk
+        will save the history for the session, but will skip saving to disk so the history file will not be updated.
+
+the custom link window:
+  1.) here you can set custom link generation
+    a.)link prefix
+      this is where the prefix goes for the random link url, E.G. https://www.youtube.com/watch?v=
+    b.)lower range rng
+      the lower bounds of the character random size eg 4-6 chars
+    c.)upper range rng
+      the upper bounds of the character random size
+    d.)rng charset
+      input characters to use to generate the link suffix,separating each segment with a comma and adding a double
+      comma to signal the end of the array EG 'a,s,d,f,,'
