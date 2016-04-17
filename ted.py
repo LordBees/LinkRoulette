@@ -83,6 +83,7 @@ def load_history_ext():##unused
     global history
     if askokcancel():
         history = loadfile(FILE_HISTORY)
+        
 ##temp here till beelib sorted out should'nt be here
 def csv2dot(strng):##replaces , with . char for  sub 'csvising them'
     temp = ''
@@ -101,6 +102,8 @@ def dot2csv(strng):##replaces . with , char for  sub 'uncsvising them'
         else:
             temp += strng[x]
     return temp
+##END
+
 def load_history():
     global history
     if FILE_HISTORY in os.listdir():
@@ -135,6 +138,7 @@ def clearhistory():##temp clears urlbox
     
 def loadsettings():
     global settings
+    global custom_radio
     print('loading settings...')
     if 'SETTINGS.CFF' in os.listdir():##my add as a function instead(exists checker)
         f = open('SETTINGS.CFF','r+')
@@ -143,6 +147,15 @@ def loadsettings():
         #print(data)
         settings = data
         print ('loaded: ',data)
+    if 'CUSTOM.CLF' in os.listdir():
+        f = open('CUSTOM.CLF','r')
+        dat = f.readline()
+        f.close()
+        data = csv2array(dat)##to solve type prob
+        print(data[0])
+        if data[0] == 1 or '1':
+            custom_radio.configure(state = 'normal')
+            
         
 
 def genlink():##button funct
@@ -631,6 +644,7 @@ class Menu_customchoose_window:
         return temp
 
     def savecustomlink_settings(self):
+        global custom_radio
         dat2sav = self.getsettings()
         print('~~~~####~~~~~#####')
         print(dat2sav)##check array handlingstuff
@@ -638,6 +652,7 @@ class Menu_customchoose_window:
         print('~~~~####~~~~~#####')
         dat2sav[3] = self.csv2dot(dat2sav[3])
         self.cls.save_customdata(dat2sav)##data is csvised internally in fileclass so no csving needed here
+        custom_radio.configure(state = str(dat2sav[4]))
         
     def getsettings(self):
         returner = [
@@ -709,7 +724,7 @@ tinyurl_radio = Radiobutton(lr_LF,text = 'tinyurl',variable = linktype_Radio,val
 bitly_radio = Radiobutton(lr_LF,text = 'Bit.ly',variable = linktype_Radio,value = 2)
 googl_radio = Radiobutton(lr_LF,text = 'goo.gl',variable = linktype_Radio,value = 3)
 imgur_radio = Radiobutton(lr_LF,text = 'imgur',variable = linktype_Radio,value = 4)
-custom_radio = Radiobutton(lr_LF,text = 'custom',variable = linktype_Radio,value = 5)
+custom_radio = Radiobutton(lr_LF,text = 'custom',variable = linktype_Radio,value = 5,state='disable')
 random_chkbox = Checkbutton(lr_LF,text = 'Random!',variable = linktype_Random,onvalue = 1,offvalue =0)
 genlnk_Button = Button(ol_LF,command = genlink,text = 'generate\nlink')
 openlnk_Button = Button(ol_LF,command = openrng,text = 'open\nlink')
@@ -744,7 +759,7 @@ def event_TED():##custom event loop
     ##event code here##
     
     ##END EVENT CODE##
-    root.after(2000, event_TED)
+    root.after(700, event_TED)
 
 
 Menu_main = Menu(root)
