@@ -296,6 +296,11 @@ class configfile_prog (file_prog):
 class customfile_prog (file_prog):
     def __init__(self):
         self.readup('CUSTOM.CLF')##custom.customlinkfile
+    def save_customdata(self,dat):
+        #self.data = array2csv(dat)
+        self.data = dat##csv done in filewriting itself
+        print(self.data)
+        self.writefile('CUSTOM.CLF')
         
 ##class file_reader(file_prog):
 ##    def readfile(self,fname):
@@ -436,8 +441,8 @@ class Menu_preview_window:
         
 class Menu_customchoose_window:
     Custom_linkprefix = StringVar()
-    Custom_linklen = IntVar()##length of link
-    Custom_linkstart = IntVar()##inclusive position start of rng link so linklen = 6 linkstart = 4 so random.rng(4,6)
+    Custom_linklen = StringVar()#IntVar()##length of link
+    Custom_linkstart = StringVar()#IntVar()##inclusive position start of rng link so linklen = 6 linkstart = 4 so random.rng(4,6)
     Custom_charset = StringVar()##csv input string for custom chars
     Custom_enable = IntVar()
     
@@ -445,18 +450,20 @@ class Menu_customchoose_window:
 
     ##defs
     Custom_charset.set('0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,,')
+    EVENTLOOP_TIC = 700
     ##END
     
     #hacky globals
     customlinkmenu = ''##menu hacky global tkstuff
     LLF= '' #hacky global ##could assign locally on init within so self llf becomes llfsub/something
-    prefixcustom_entry=''
-    lowerlimitrng_entry = ''
-    upperlimitrng_entry = ''
-    charset_entry = ''
+    #prefixcustom_entry=''
+    #lowerlimitrng_entry = ''
+    #upperlimitrng_entry = ''
+    #charset_entry = ''
     #END
     
     def __init__(self):
+        self.loadcustomlink_settings()
         self.customlinkmenu = Toplevel()
         CLF = LabelFrame(self.customlinkmenu,text = 'custom link')##Custom Label Frame
         self.LLF = LabelFrame(self.customlinkmenu,text = 'cutom link creation')##Link Label Frame
@@ -464,17 +471,20 @@ class Menu_customchoose_window:
         EnableCL_button = Checkbutton(CLF,text = 'enable custom link',variable = self.Custom_enable,onvalue = 1,offvalue =0)##EnableCustomLink_button
         savesettings_button = Button(CLF,text = 'save settings',command = self.savecustomlink_settings)
 
-        prefixcustom_entry = Entry(self.LLF)
+        prefixcustom_entry = Entry(self.LLF,textvariable = self.Custom_linkprefix)
         prefixcustom_entry_label = Label(self.LLF,text = 'link prefix')
-        lowerlimitrng_entry = Entry(self.LLF)
+        lowerlimiting_entry = Entry(self.LLF,textvariable = self.Custom_linkstart)
         lowerlimiting_entry_label = Label(self.LLF,text = 'lower range rng')
-        upperlimitrng_entry = Entry(self.LLF)
+        upperlimiting_entry = Entry(self.LLF,textvariable = self.Custom_linklen)
         upperlimiting_entry_label = Label(self.LLF,text = 'upper range rng')
-        charset_entry = Entry(self.LLF)
+        charset_entry = Entry(self.LLF,textvariable = self.Custom_charset)
         charset_entry_label = Label(self.LLF,text = 'rng charset(CSV)')##print(array2csv(vchars))
         #savesettings_button = Button(self.LLF,text = 'save settings',command = savecustomlink_settings)
 
-        
+
+        ##setting up
+        #self.Custom_charset.set('0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,,')
+        ##END
         CLF.pack()
         self.LLF.pack()
 
@@ -484,15 +494,16 @@ class Menu_customchoose_window:
         prefixcustom_entry_label.pack()
         prefixcustom_entry.pack()
         lowerlimiting_entry_label.pack()
-        lowerlimitrng_entry.pack()
+        lowerlimiting_entry.pack()
         upperlimiting_entry_label.pack()
-        upperlimitrng_entry.pack()
-        charset_entry.pack()
+        upperlimiting_entry.pack()
         charset_entry_label.pack()
+        charset_entry.pack()
+
         
         #root.config()
         self.customlinkmenu.title('custom link creation')
-        self.customlinkmenu.after(1000, self.event_TED)
+        self.customlinkmenu.after(self.EVENTLOOP_TIC, self.event_TED)
 
         self.disable_custom()##disable at start
         #self.checkstate_custom()
@@ -501,6 +512,7 @@ class Menu_customchoose_window:
         
     def event_TED(self):##custom event loop
         ##event code here##
+        
         #print('test')
         ##hacky stuffWILLFIX LATER
 
@@ -513,14 +525,13 @@ class Menu_customchoose_window:
 ##        self.Custom_linklen.set(self.lowerlimitrng_entry.get())##length of link
 ##        self.Custom_linkstart.set(self.upperlimitrng_entry.get())##inclusive position start of rng link so linklen = 6 linkstart = 4 so random.rng(4,6)
 ##        self.Custom_charset.set(self.charset_entry.get())##csv input string for custom chars
-        
         print(self.Custom_enable.get())
         if self.Custom_enable.get() == 1:
             self.enable_custom()
         else:
             self.disable_custom()
         ##END EVENT CODE##
-        self.customlinkmenu.after(1000, self.event_TED)
+        self.customlinkmenu.after(self.EVENTLOOP_TIC, self.event_TED)
         
     def enable_custom(self):
         print('enabled!')
@@ -532,12 +543,12 @@ class Menu_customchoose_window:
             child.configure(state='disable')
             
     def checkstate_custom(self):##checks in settings for if enabled
-        
+        ###NOTNEEDED IGNORE here  for refrence
         dat = self.csv2array(cls.get_data())
         prefix = dat[0]
         rngrangelen = dat[1]
 
-    def csv2dot(strng):##replaces , with . char for  sub 'csvising them'
+    def csv2dot(self,strng):##replaces , with . char for  sub 'csvising them'
         temp = ''
         for x in range(len(strng)):
             if strng[x] == ',':
@@ -546,7 +557,7 @@ class Menu_customchoose_window:
                 temp += strng[x]
         return temp
 
-    def dot2csv(strng):##replaces . with , char for  sub 'uncsvising them'
+    def dot2csv(self,strng):##replaces . with , char for  sub 'uncsvising them'
         temp = ''
         for x in range(len(strng)):
             if strng[x] == '.':
@@ -558,8 +569,9 @@ class Menu_customchoose_window:
     def savecustomlink_settings(self):
         dat2sav = self.getsettings()
         print(dat2sav)##check array handlingstuff
+        print(self.csv2dot('0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,,'))
         dat2sav[3] = self.csv2dot(dat2sav[3])
-        self.cls.savedata(dat2sav)##data is csvised internally in fileclass so no csving needed here
+        self.cls.save_customdata(dat2sav)##data is csvised internally in fileclass so no csving needed here
         
     def getsettings(self):
         returner = [
@@ -572,7 +584,17 @@ class Menu_customchoose_window:
         return returner
             
     def loadcustomlink_settings(self):
-        data = self.csv2array(self.cls.get_data())
+        #data = self.csv2array(self.cls.get_data())
+        #print(data)
+
+        ##manual load till fix
+        f = open('CUSTOM.CLF','r')
+        data = f.readline()
+        f.close()
+        data = csv2array(data)
+        print(data)
+        ##END
+        
         data[3] = self.dot2csv(data[3])
         
         self.Custom_linkprefix.set(data[0])
