@@ -152,8 +152,8 @@ def loadsettings():
         dat = f.readline()
         f.close()
         data = csv2array(dat)##to solve type prob
-        print(data[0])
-        if data[0] == 1 or '1':
+        print('enabled custom: '+data[4])
+        if data[4] == 1 or '1':
             custom_radio.configure(state = 'normal')
             
         
@@ -646,13 +646,16 @@ class Menu_customchoose_window:
     def savecustomlink_settings(self):
         global custom_radio
         dat2sav = self.getsettings()
-        print('~~~~####~~~~~#####')
+        print('~~~~####~~~~####~~~~')
         print(dat2sav)##check array handlingstuff
         print(self.csv2dot('0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,,'))
-        print('~~~~####~~~~~#####')
+        print('~~~~####~~~~####~~~~')
         dat2sav[3] = self.csv2dot(dat2sav[3])
         self.cls.save_customdata(dat2sav)##data is csvised internally in fileclass so no csving needed here
-        custom_radio.configure(state = str(dat2sav[4]))
+        if str(dat2sav[4]) == '1':
+            custom_radio.configure(state = 'normal')
+        else:
+            custom_radio.configure(state = 'disabled')
         
     def getsettings(self):
         returner = [
@@ -712,7 +715,8 @@ class Menu_customchoose_window:
     
 ##END SUBWINDOW CLASSES##
 
-ol_LF = LabelFrame(root,text = 'open link')##openlink 
+ol_LF = LabelFrame(root,text = 'open link')##openlink
+s_ol_LF  = LabelFrame(root,text = 'link')##openlink subframe forlink buttons
 lr_LF = LabelFrame(root,text = 'pick a link type')##linkradio
 hb_LF = LabelFrame(root,text = 'link history')##historybox
 ms_LF = LabelFrame(root,text = 'misc functions')##misc
@@ -731,13 +735,16 @@ openlnk_Button = Button(ol_LF,command = openrng,text = 'open\nlink')
 opengoogle_Button = Button(ms_LF,command = googlehome,text = 'google homepage')
 selectlink_Button = Button(hb_LF,command = setlink,text = 'select link')
 clearhistory_Button  = Button(ms_LF,command = clearhistory,text = 'clear history')
-linkbox_Label = Label(root)
+linkbox_Label = Label(s_ol_LF)
+
 
 buff = [5,5]##pixel edge buffer/offset
 lr_LF.place(x = buff[0]+ 0,y = buff[1]+ 0)#.pack()              ###PACK CHANGED TO PLACE UNCONFIGGED!!!
 ol_LF.place(x = buff[0]+ 75,y = buff[1]+ 250)#.pack()
 hb_LF.place(x = buff[0]+ 150,y = buff[1]+ 0)#.pack()
 ms_LF.place(x = buff[0]+ 0,y = buff[1]+ 175)#.pack()
+s_ol_LF.place(x = buff[0]+ 115,y = buff[1]+ 315)
+
 
 tinyurl_radio.pack()
 bitly_radio.pack()
@@ -750,7 +757,7 @@ openlnk_Button.pack(side = LEFT)
 opengoogle_Button.pack()
 selectlink_Button.pack()
 clearhistory_Button.pack()
-linkbox_Label.pack()
+linkbox_Label.pack(side = BOTTOM)
 history_Listbox.pack(side = LEFT)
 historyscroller_Scrollbar.pack(side = RIGHT,fill = Y)
 
