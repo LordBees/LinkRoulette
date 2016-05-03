@@ -342,8 +342,11 @@ class file_prog:
         self.linelen = len(self.data)
         
     def readup(self,filename):
-        self.readfile(filename)
-        self.update_fobj()
+        if os.path.isfile(filename):
+            self.readfile(filename)
+            self.update_fobj()
+        else:
+            print('file: '+str(filename)+' not found!')
         
     def get_name(self):
         return self.name
@@ -382,6 +385,7 @@ class configfile_prog (file_prog):##file obj for config file
 
 class customfile_prog (file_prog):##file obj for custom link file
     def __init__(self):
+        #if os.path.isfile('CUSTOM.CLF'):
         self.readup('CUSTOM.CLF')##custom.customlinkfile
     def save_customdata(self,dat):
         #self.data = array2csv(dat)
@@ -394,6 +398,21 @@ class customfile_prog (file_prog):##file obj for custom link file
         self.data[3] = csv2dot(self.data[3])#dotting subcsv
         print(self.data)
         self.writefile('CUSTOM.CLF')
+        
+class customlinkfile_prog (file_prog):
+    def __init__(self):
+        self.readup('PRESET.dat')
+    def save_customdata(self,dat):
+        #self.data = array2csv(dat)
+        self.data = dat##csv done in filewriting itself
+        print(self.data)
+        self.writefile('PRESET.dat')
+    def save_customdata2(self,dat):##improvement of the first iteration assumes raw input
+        #self.data = array2csv(dat)
+        self.data = dat##csv done in filewriting itself(will move at some point)
+        self.data[3] = csv2dot(self.data[3])#dotting subcsv
+        print(self.data)
+        self.writefile('PRESET.dat')
     
         
 ##class file_reader(file_prog):
@@ -561,6 +580,7 @@ class Menu_customchoose_window:
     Custom_enable = IntVar()
     
     cls = customfile_prog()##customlinkstorage ##data for the custom link
+    clf = customlinkfile_prog()##custom link quick load file
 
     ##defs
     Custom_charset.set('0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,,')
@@ -581,6 +601,7 @@ class Menu_customchoose_window:
         self.customlinkmenu = Toplevel()
         CLF = LabelFrame(self.customlinkmenu,text = 'custom link')##Custom Label Frame
         self.LLF = LabelFrame(self.customlinkmenu,text = 'custom link creation')##Link Label Frame
+        CPL = LabelFrame(self.customlinkmenu,text = 'custom link presets')##Custom Preset Link
 
         EnableCL_button = Checkbutton(CLF,text = 'enable custom link',variable = self.Custom_enable,onvalue = 1,offvalue =0)##EnableCustomLink_button
         savesettings_button = Button(CLF,text = 'save settings',command = self.savecustomlink_settings)
@@ -596,12 +617,21 @@ class Menu_customchoose_window:
         charset_default_button = Button(self.LLF,text = 'default charset',command = self.Custom_resetcharset)
         #savesettings_button = Button(self.LLF,text = 'save settings',command = savecustomlink_settings)
 
+        #custompresetchooser_listbox
+        custompresetchooser_listbox_Scrollbar = Scrollbar(CPL)
+        custompresetchooser_listbox = Listbox(CPL,yscrollcommand = custompresetchooser_listbox_Scrollbar.set)
+        custompresetchooser_listbox_Scrollbar.config(command = custompresetchooser_listbox.yview)
+        custompresetchooser_Load = Button(CPL,command = self.load_presetdata,text = 'load preset')
+        custompresetchooser_Save = Button(CPL,command = self.save_presetdata,text = 'save preset as new/update selected')
+        custompresetchooser_Delt = Button(CPL,command = self.delt_presetdata,text = 'delete selected preset')
+
 
         ##setting up
         #self.Custom_charset.set('0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,,')
         ##END
         CLF.pack()
         self.LLF.pack()
+        CPL.pack()
 
         EnableCL_button.pack()
         savesettings_button.pack()
@@ -615,6 +645,12 @@ class Menu_customchoose_window:
         charset_entry_label.pack()
         charset_entry.pack()
         charset_default_button.pack()
+
+        custompresetchooser_listbox.pack()
+        custompresetchooser_listbox_Scrollbar.pack()
+        custompresetchooser_Load.pack()
+        custompresetchooser_Save.pack()
+        custompresetchooser_Delt.pack()
 
         
         #root.config()
@@ -721,24 +757,120 @@ class Menu_customchoose_window:
         #print(data)
 
         ##manual load till fix
-        f = open('CUSTOM.CLF','r')
-        data = f.readline()
-        f.close()
-        data = csv2array(data)
-        print(data)
+        if os.path.isfile('CUSTOM.CLF'):
+            f = open('CUSTOM.CLF','r')
+            data = f.readline()
+            f.close()
+            data = csv2array(data)
+            print(data)
         ##END
         
-        data[3] = self.dot2csv(data[3])
+            data[3] = self.dot2csv(data[3])
         
-        self.Custom_linkprefix.set(data[0])
-        self.Custom_linklen.set(data[1])
-        self.Custom_linkstart.set(data[2])
-        self.Custom_charset.set(data[3])
-        self.Custom_enable.set(data[4])
+            self.Custom_linkprefix.set(data[0])
+            self.Custom_linklen.set(data[1])
+            self.Custom_linkstart.set(data[2])
+            self.Custom_charset.set(data[3])
+            self.Custom_enable.set(data[4])
+        else:
+            print('file: CUSTOM.CLF not found!')
     def Custom_resetcharset(self):
         if messagebox.askokcancel(title = 'confirm reset',message = 'are you sure\nthis will reset the the charset box to the default value!'):
             self.Custom_charset.set('0,1,2,3,4,5,6,7,8,9,A,B,C,D,E,F,G,H,I,J,K,L,M,N,O,P,Q,R,S,T,U,V,W,X,Y,Z,a,b,c,d,e,f,g,h,i,j,k,l,m,n,o,p,q,r,s,t,u,v,w,x,y,z,,')
             print('RESET!')
+
+    #######custom link files##
+            ##preset.cbf is all preset configs
+            ##preset.dat is quick load of a single setting file with 1 preset
+            
+    def Custom_loadpreset(self):##loads apreset file via tk.loadbox
+        pass
+    
+    def Custom_load_presetfile(self):##loader and saver functons
+        print('loading from preset.CPF')
+        f = open('preset.CPF','r')
+        dat = f.readlines().strip('\n')
+        print(dat)
+        f.close()
+        print('loading DONE!')
+    def Custom_save_presetfile(self):
+        print('saving from preset.CPF')
+        f = open('preset.CPF','w')
+        for x in data:
+            f.write(x+str('\n'))
+        f.close()
+        print('saving DONE!')
+    def presetlist_update(self,dat):##refreshes listbox containing presets with dat  supplied in array form
+        input('fgbjgujg')
+        self.custompresetchooser_listbox.delete(0,self.custompresetchooser_listbox.size())
+        for x in dat:
+            self.custompresetchooser_listbox.insert(END,x)
+            
+    def load_presetdata(self):##load individual preset file
+        print('loading from preset.dat')
+        if os.path.isfile('PRESET.dat'):
+            f = open('PRESET.dat','r')
+            data = f.readline()
+            f.close()
+            data = csv2array(data)
+            print(data)
+        ##END
+        
+            data[3] = self.dot2csv(data[3])
+        
+            self.Custom_linkprefix.set(data[0])
+            self.Custom_linklen.set(data[1])
+            self.Custom_linkstart.set(data[2])
+            self.Custom_charset.set(data[3])
+            self.Custom_enable.set(data[4])
+
+            self.savecustomlink_settings()##'saves' the preset
+            
+    def save_presetdata(self):##C+p of savesettings atm nned to change ##sae individual preset file
+        print('saving to preset.dat...')
+        global custom_radio
+        global settings
+        dat2sav = self.getsettings()
+        if os.path.isfile('PRESET.dat'):
+            if messagebox.askokcancel(title = 'confirm save',message = 'are you sure?\n this will overwrite your existing quickpreset file!'):
+                dat2sav[3] = self.csv2dot(dat2sav[3])
+                self.clf.save_customdata(dat2sav)##data is csvised internally in fileclass so no csving needed here
+                print('custom state = '+str(dat2sav[4]))
+                if str(dat2sav[4]) == '1':
+                    custom_radio.configure(state = 'normal')
+                    csttg = '1'##customtoggle
+                else:
+                    print('cstmst = disabled')
+                    custom_radio.configure(state = 'disabled')
+                    csttg = '0'
+                    
+                try:
+                    settings[3] = csttg## if fail then append may be good idea to use 'variable type data in arrays E.G. ['Button_on = 1',"Test = '1'"] etc may help with id problems
+                except:
+                    settings.append(csttg)
+        else:##same again as only ask to replace
+            dat2sav[3] = self.csv2dot(dat2sav[3])
+            self.clf.save_customdata(dat2sav)##data is csvised internally in fileclass so no csving needed here
+            print('custom state = '+str(dat2sav[4]))
+            if str(dat2sav[4]) == '1':
+                custom_radio.configure(state = 'normal')
+                csttg = '1'##customtoggle
+            else:
+                print('cstmst = disabled')
+                custom_radio.configure(state = 'disabled')
+                csttg = '0'
+                
+            try:
+                settings[3] = csttg## if fail then append may be good idea to use 'variable type data in arrays E.G. ['Button_on = 1',"Test = '1'"] etc may help with id problems
+            except:
+                settings.append(csttg)
+        print('DONE!')
+                    
+    def delt_presetdata(self):##delete preset file
+        if os.path.isfile('PRESET.dat'):
+            pass
+        self.Custom_load_presetfile()
+    ##end customfile
     ###these really shouldnt be here..
     def array2csv(self,array):##from beelib
         temp = ''
